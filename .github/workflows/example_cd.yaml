@@ -1,0 +1,73 @@
+name: Continuous Delivery
+
+on:
+  workflow_dispatch
+
+env:
+  FLUTTER_VERSION: 3.22.2
+
+jobs:
+  continuous_delivery_android:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📚 Git checkout
+        uses: actions/checkout@v4
+      - name: 📂 Ajouter le fichier keystore
+        working-directory: example/android/app
+        run: echo "${{ secrets.DEV_ANDROID_KEYSTORE }}" | base64 --decode > example.keystore
+      - name: 📝 Ajouter le fichier properties
+        working-directory: example/android
+        run: echo ${{ secrets.DEV_ANDROID_KEY_PROPERTIES }} | base64 --decode > key.properties
+      - name: 🐦 Install flutter
+        uses: subosito/flutter-action@v2
+        with:
+          cache: true
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+      - name: 🧱 Construire l'application
+        working-directory: example
+        run: flutter build appbundle
+        env:
+           JAVA_HOME: /usr/lib/jvm/temurin-17-jdk-amd64
+      - name: 🗑️ Nettoyer les fichiers secrets
+        if: always()
+        run: rm -f example/android/app/example.keystore example/android/key.properties
+
+  continuous_delivery_ios:
+    runs-on: macos-latest
+    steps:
+      - name: 📚 Git checkout
+        uses: actions/checkout@v4
+      - name: 🗒️🔏 Ajouter le certificat de signature
+        run: |
+          keychainPassword=$(openssl rand -base64 50)
+          security create-keychain -p "$keychainPassword" temp.keychain
+          security set-keychain-settings -lut 21600 temp.keychain
+          security unlock-keychain -p "$keychainPassword" temp.keychain
+
+          echo "${{ secrets.DEV_IOS_P12_FILE }}" | base64 --decode > certificat.p12
+          security import certificat.p12 -P "${{ secrets.DEV_IOS_P12_PASSWORD }}" -A -t cert -f pkcs12 -k temp.keychain
+          security list-keychain -d user -s temp.keychain
+
+          security set-key-partition-list -S apple-tool:,apple: -s -k "$keychainPassword" temp.keychain
+      - name: 📱🔏 Ajouter le profil de provisionnement et le fichier exportOptions
+        run: |
+          echo ${{ secrets.DEV_IOS_PROFILE }} | base64 --decode > profile.mobileprovision
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          cp profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/profile.mobileprovision
+
+          echo ${{ secrets.DEV_IOS_EXPORT_OPTIONS }} | base64 --decode > exportOptions.plist
+      - name: 🐦 Install flutter
+        uses: subosito/flutter-action@v2
+        with:
+          cache: true
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+      - name: 🧱 Construire l'application
+        working-directory: example
+        run: flutter build ipa --export-options-plist ../exportOptions.plist
+      - name: 🗑️ Nettoyer les fichiers secrets
+        if: always()
+        run: |
+          rm -f certificat.p12 profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/profile.mobileprovision exportOptions.plist
+          security delete-keychain temp.keychain
