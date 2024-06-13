@@ -1,0 +1,48 @@
+name: Continuous Delivery
+
+on:
+  workflow_dispatch
+
+env:
+  FLUTTER_VERSION: 3.22.2
+
+jobs:
+  continuous-delivery-ios:
+    runs-on: macos-latest
+    steps:
+      - name: 📚 Git checkout
+        uses: actions/checkout@v4
+      - name: 🗒️🔏 Ajouter le certificat de signature
+        run: |
+          # Créer un trousseau temporaire
+          keychainPassword=$(openssl rand -base64 50)
+          security create-keychain -p "$keychainPassword" temp.keychain
+          security set-keychain-settings -lut 21600 temp.keychain
+          security unlock-keychain -p "$keychainPassword" temp.keychain
+
+          # Importer le certificat de signature
+          echo "${{ secrets.DEV_IOS_P12_FILE }}" | base64 --decode -o certificat.p12
+          security import certificat.p12 -P "${{ secrets.DEV_IOS_P12_PASSWORD }}" -A -t cert -f pkcs12 -k temp.keychain
+          security list-keychain -d user -s temp.keychain
+      - name: 📱🔏 Ajouter le profil de provisionnement et le fichier exportOptions
+        run: |
+          echo ${{ secrets.DEV_IOS_PROFILE }} | base64 --decode -o profile.mobileprovision
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          uuid=`security cms -D -i profile.mobileprovision | grep -aA1 UUID | grep -o "[-a-zA-Z0-9]\{36\}"`
+          cp profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/$uuid.mobileprovision
+
+          echo ${{ secrets.DEV_IOS_EXPORT_OPTIONS }} | base64 --decode -o exportOptions.plist
+      - name: 🐦 Install flutter
+        uses: subosito/flutter-action@v2
+        with:
+          cache: true
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+      - name: 📦 Installer les dépendances
+        run: |
+          cd example
+          flutter pub get
+      - name: 🧱 Construire l'application
+        run: |
+          cd example
+          flutter build ipa --no-pub --release --export-options-plist ../exportOptions.plist -v
