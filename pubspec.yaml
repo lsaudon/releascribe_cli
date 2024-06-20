@@ -1,9 +1,9 @@
 name: releascribe_cli
-description: Effortlessly manage software releases with advanced CLI.
+description: Effortlessly manage software releases with advanced command-line interface.
 version: 0.1.0
-homepage: https://github.com/lsaudon/releasescribe_cli
-repository: https://github.com/lsaudon/releasescribe_cli
-issue_tracker: https://github.com/lsaudon/releasescribe_cli/issues
+homepage: https://github.com/lsaudon/releascribe_cli
+repository: https://github.com/lsaudon/releascribe_cli
+issue_tracker: https://github.com/lsaudon/releascribe_cli/issues
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
