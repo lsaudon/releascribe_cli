@@ -3,7 +3,7 @@ name: continuous-delivery
 on:
   push:
     tags:
-      - 'v[0-9]+\.[0-9]+\.[0-9]+\+[0-9]+'
+      - 'v*'
 
 env:
   FLUTTER_VERSION: 3.22.2
@@ -11,6 +11,7 @@ env:
 jobs:
   continuous-delivery-ios:
     runs-on: macos-latest
+    if: github.ref == 'refs/heads/main'
     defaults:
       run:
         working-directory: example/ios
