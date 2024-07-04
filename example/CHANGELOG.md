@@ -1,5 +1,5 @@
-## 🔖 [1.0.3+4]
+## 🔖 [1.0.4+5]
 
-### 🐛 Bug Fixes
+### 🧹 Chores
 
-- Don't push tag
+- Update pull request creation command and push changes in version_control_git_adapter.dart
