@@ -1,5 +1,5 @@
-## 🔖 [1.0.1+2]
+## 🔖 [1.0.2+3]
 
 ### 🧹 Chores
 
-- Update continuous delivery workflow to use Ubuntu instead of macOS
+- run tags only of main branch
