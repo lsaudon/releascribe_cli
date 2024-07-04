@@ -1,5 +1,5 @@
-## 🔖 [1.0.2+3]
+## 🔖 [1.0.3+4]
 
-### 🧹 Chores
+### 🐛 Bug Fixes
 
-- run tags only of main branch
+- Don't push tag
