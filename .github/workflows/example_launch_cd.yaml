@@ -1,22 +1,25 @@
 name: launch-continuous-delivery
-
 on:
   workflow_dispatch
-
 permissions:
   contents: write
   pull-requests: write
 jobs:
   continuous-delivery-ios:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: example
     steps:
-      - uses: actions/checkout@v4
-      - uses: dart-lang/setup-dart@v1
+      - name: ✅ Checkout code
+        uses: actions/checkout@v4
+      - name: 🎯 Setup Dart SDK
+        uses: dart-lang/setup-dart@v1
         with:
           sdk: "stable"
-      - run: dart pub global activate --source=path .
-      - run: |
-          cd example
-          releascribe_cli release
+      - name: 📦️ Activate Releascribe
+        run: dart pub global activate --source=path ../
+      - name: 🚀 Run Releascribe
+        run: releascribe_cli release
         env:
           GH_TOKEN: ${{ github.token }}

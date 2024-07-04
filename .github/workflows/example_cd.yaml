@@ -1,4 +1,4 @@
-name: continuous-delivery
+name: Continuous Delivery
 
 on:
   workflow_dispatch
@@ -9,32 +9,40 @@ env:
 jobs:
   continuous-delivery-ios:
     runs-on: macos-latest
-    defaults:
-      run:
-        working-directory: example/ios
     steps:
-      - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@v2
+      - name: 📚 Git checkout
+        uses: actions/checkout@v4
+      - name: 🗒️🔏 Ajouter le certificat de signature
+        run: |
+          # Créer un trousseau temporaire
+          keychainPassword=$(openssl rand -base64 50)
+          security create-keychain -p "$keychainPassword" temp.keychain
+          security set-keychain-settings -lut 21600 temp.keychain
+          security unlock-keychain -p "$keychainPassword" temp.keychain
+
+          # Importer le certificat de signature
+          echo "${{ secrets.DEV_IOS_P12_FILE }}" | base64 --decode -o certificat.p12
+          security import certificat.p12 -P "${{ secrets.DEV_IOS_P12_PASSWORD }}" -A -t cert -f pkcs12 -k temp.keychain
+          security list-keychain -d user -s temp.keychain
+      - name: 📱🔏 Ajouter le profil de provisionnement et le fichier exportOptions
+        run: |
+          echo ${{ secrets.DEV_IOS_PROFILE }} | base64 --decode -o profile.mobileprovision
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          uuid=`security cms -D -i profile.mobileprovision | grep -aA1 UUID | grep -o "[-a-zA-Z0-9]\{36\}"`
+          cp profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/$uuid.mobileprovision
+
+          echo ${{ secrets.DEV_IOS_EXPORT_OPTIONS }} | base64 --decode -o exportOptions.plist
+      - name: 🐦 Install flutter
+        uses: subosito/flutter-action@v2
         with:
           cache: true
           channel: stable
           flutter-version: ${{ env.FLUTTER_VERSION }}
-      - run: cat ../pubspec.yaml
-      # - run: |
-      #     keychainPassword='cat /dev/urandom | LC_ALL=C tr -dc 'a-zA-Z0-9' | fold -w 50 | head -n 1'
-      #     security create-keychain -p "$keychainPassword" ios_signing_temp.keychain
-      #     security set-keychain-settings -lut 21600 ios_signing_temp.keychain
-      #     security unlock-keychain -p "$keychainPassword" ios_signing_temp.keychain
-
-      #     echo "${{ secrets.DEV_P12_FILE }}" | base64 --decode -o Certificates.p12
-      #     security import Certificates.p12 -P "${{ secrets.DEV_P12_PWD }}" -A -t cert -f pkcs12 -k ios_signing_temp.keychain
-      #     security list-keychain -d user -s ios_signing_temp.keychain
-      # - run: |
-      #     echo ${{ secrets.DEV_IOS_PROFILE }} | base64 --decode -o ProvisioningProfile.mobileprovision
-      #     mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-      #     uuid=`security cms -D -i ProvisioningProfile.mobileprovision | grep -aA1 UUID | grep -o "[-a-zA-Z0-9]\{36\}"`
-      #     cp ProvisioningProfile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/$uuid.mobileprovision
-      # - run: echo ${{ secrets.DEV_IOS_PLIST }} | base64 --decode -o exportOptions.plist
-      # - run: |
-      #     flutter config --no-cli-animations
-      #     flutter build ipa --export-options-plist exportOptions.plist
+      - name: 📦 Installer les dépendances
+        run: |
+          cd example
+          flutter pub get
+      - name: 🧱 Construire l'application
+        run: |
+          cd example
+          flutter build ipa --no-pub --release --export-options-plist ../exportOptions.plist -v
