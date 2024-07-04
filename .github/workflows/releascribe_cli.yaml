@@ -37,8 +37,7 @@ jobs:
           sdk: "stable"
 
       - name: 📦 Install Dependencies
-        run: |
-          dart pub get
+        run: dart pub get --no-example
 
       - name: 🔎 Verify version
         run: dart run test --run-skipped -t version-verify
