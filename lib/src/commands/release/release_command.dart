@@ -23,9 +23,11 @@ import 'package:releascribe_cli/src/commands/release/version_control/version_con
 class ReleaseCommand extends Command<int> {
   /// {@macro release_command}
   ReleaseCommand({
+    required final Logger logger,
     required final ProcessManager processManager,
     required final FileSystem fileSystem,
-  })  : _processManager = processManager,
+  })  : _logger = logger,
+        _processManager = processManager,
         _fileSystem = fileSystem {
     argParser.addOption(
       optionReleaseInfoFile,
@@ -42,14 +44,17 @@ class ReleaseCommand extends Command<int> {
 
   final optionReleaseInfoFile = 'release-info-file';
 
+  final Logger _logger;
   final ProcessManager _processManager;
   final FileSystem _fileSystem;
 
   @override
   Future<int> run() async {
     final commitCategories = await _parseCommitCategoriesFromFile();
-    final versionControlPort =
-        VersionControlGitAdapter(processManager: _processManager);
+    final versionControlPort = VersionControlGitAdapter(
+      processManager: _processManager,
+      logger: _logger,
+    );
     final commits = await versionControlPort.getCommits();
 
     final commitCategoryRegistry =
