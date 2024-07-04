@@ -5,9 +5,13 @@ import 'package:releascribe_cli/src/commands/release/version_control/commit.dart
 import 'package:releascribe_cli/src/commands/release/version_control/version_control_port.dart';
 
 class VersionControlGitAdapter implements VersionControlPort {
-  VersionControlGitAdapter({required final ProcessManager processManager})
-      : _processManager = processManager;
+  VersionControlGitAdapter({
+    required final Logger logger,
+    required final ProcessManager processManager,
+  })  : _logger = logger,
+        _processManager = processManager;
 
+  final Logger _logger;
   final ProcessManager _processManager;
 
   @override
@@ -46,5 +50,6 @@ class VersionControlGitAdapter implements VersionControlPort {
     await _processManager.run(['git', 'commit', '-m', 'chore: $versionTag']);
     await _processManager
         .run(['git', 'push', '--atomic', 'origin', branchName, versionTag]);
+    _logger.info('Branch $branchName created.');
   }
 }

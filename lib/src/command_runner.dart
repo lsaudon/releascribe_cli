@@ -46,6 +46,7 @@ class ReleascribeCliCommandRunner extends CompletionCommandRunner<int> {
     // Add sub commands
     addCommand(
       ReleaseCommand(
+        logger: _logger,
         processManager: processManager,
         fileSystem: fileSystem,
       ),

@@ -247,6 +247,7 @@ void main() {
       ]) {
         verify(() => processManager.run(c));
       }
+      verify(() => logger.info('Branch $versionBranch created.'));
     }
 
     test('generate CHANGELOG.md when no previous tags exist', () async {

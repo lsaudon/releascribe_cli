@@ -7,7 +7,7 @@ concurrency:
 on:
   pull_request:
     paths:
-      - ".github/workflows/releascribe_cli.yaml"
+      - ".github/workflows/**"
       - "lib/**"
       - "test/**"
       - "pubspec.yaml"
@@ -15,7 +15,7 @@ on:
     branches:
       - main
     paths:
-      - ".github/workflows/releascribe_cli.yaml"
+      - ".github/workflows/**"
       - "lib/**"
       - "test/**"
       - "pubspec.yaml"
