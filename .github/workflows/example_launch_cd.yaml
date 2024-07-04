@@ -18,6 +18,3 @@ jobs:
       - run: |
           cd example
           releascribe_cli release
-          gh pr create --title "New version" --body "Body" --base main --head $(git branch --show-current)
-        env:
-          GH_TOKEN: ${{ github.token }}
