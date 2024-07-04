@@ -18,6 +18,7 @@ jobs:
       - run: |
           cd example
           releascribe_cli release
+          git push
           git status
         #   gh pr create --title "New version" --body "Body" --base main --head $(git branch --show-current)
         # env:
