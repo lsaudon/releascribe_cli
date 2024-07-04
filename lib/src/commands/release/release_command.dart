@@ -115,11 +115,41 @@ class ReleaseCommand extends Command<int> {
   ) {
     final highestVersionType =
         versionTypes.reduce((final a, final b) => a.index > b.index ? a : b);
-    return switch (highestVersionType) {
-      SemanticVersionType.major => currentVersion.nextMajor,
-      SemanticVersionType.minor => currentVersion.nextMinor,
-      SemanticVersionType.patch => currentVersion.nextPatch,
-    };
+    final version = _calculateNextVersion(currentVersion, highestVersionType);
+    return _incrementBuildNumberIfNeeded(version, currentVersion);
+  }
+
+  Version _calculateNextVersion(
+    final Version currentVersion,
+    final SemanticVersionType highestVersionType,
+  ) {
+    switch (highestVersionType) {
+      case SemanticVersionType.major:
+        return currentVersion.nextMajor;
+      case SemanticVersionType.minor:
+        return currentVersion.nextMinor;
+      case SemanticVersionType.patch:
+        return currentVersion.nextPatch;
+    }
+  }
+
+  Version _incrementBuildNumberIfNeeded(
+    final Version version,
+    final Version currentVersion,
+  ) {
+    final firstOrNull = currentVersion.build.firstOrNull ?? '';
+    final buildNumber = int.tryParse(firstOrNull.toString());
+
+    if (buildNumber == null) {
+      return version;
+    }
+
+    return Version(
+      version.major,
+      version.minor,
+      version.patch,
+      build: '${buildNumber + 1}',
+    );
   }
 
   String generate({

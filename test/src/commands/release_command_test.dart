@@ -19,7 +19,7 @@ class _MockProcessManager extends Mock implements ProcessManager {}
 
 // Constants for Test Data
 const changelogContent = '''
-## 🔖 [1.3.0]
+## 🔖 [1.3.0+2]
 
 ### 🐛 Bug Fixes
 
@@ -60,7 +60,7 @@ const changelogContent = '''
 - removed testing framework
 ''';
 const String changelogContentFromJsonFile = '''
-## 🔖 [1.3.0]
+## 🔖 [1.3.0+2]
 
 ### 🐛 Corrections de bugs
 
@@ -110,13 +110,13 @@ Run "$executableName help" to see global options.''';
 
 const String pubspecContent = '''
 name: example
-version: 1.2.3
+version: 1.2.3+1
 environment:
   sdk: ">=3.0.0 <4.0.0"''';
 
 const String updatedPubspecContent = '''
 name: example
-version: 1.3.0
+version: 1.3.0+2
 environment:
   sdk: ">=3.0.0 <4.0.0"''';
 
@@ -169,13 +169,13 @@ void _mockProcessResultsForNoTag(final ProcessManager processManager) {
 
 // Helper Function to Mock Process Results for Latest Tag Scenario
 void _mockProcessResultsForLatestTag(final ProcessManager processManager) {
-  final latestTagResult = ProcessResult(0, 0, 'v1.2.3', '');
+  final latestTagResult = ProcessResult(0, 0, 'v1.2.3+1', '');
 
   when(() => processManager.run('git describe --tags --abbrev=0'.split(' ')))
       .thenAnswer((final _) async => latestTagResult);
   when(
     () => processManager
-        .run('git log v1.2.3..HEAD --grep=^.*: --pretty=%s'.split(' ')),
+        .run('git log v1.2.3+1..HEAD --grep=^.*: --pretty=%s'.split(' ')),
   ).thenAnswer((final _) async => commitResult);
 }
 
@@ -189,7 +189,7 @@ void main() {
     setUp(() {
       logger = _MockLogger();
       processManager = _MockProcessManager();
-      const versionTag = 'v1.3.0';
+      const versionTag = 'v1.3.0+2';
       const versionBranch = 'releascribe-$versionTag';
       when(
         () => processManager.run(['git', 'checkout', '-b', versionBranch]),
@@ -239,7 +239,7 @@ void main() {
       final changelogFime =
           await fileSystem.file('CHANGELOG.md').readAsString();
       expect(changelogFime, changeLogExpected);
-      const versionTag = 'v1.3.0';
+      const versionTag = 'v1.3.0+2';
       const versionBranch = 'releascribe-$versionTag';
       for (final c in [
         ['git', 'checkout', '-b', versionBranch],
