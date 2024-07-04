@@ -17,7 +17,6 @@ class VersionControlGitAdapter implements VersionControlPort {
   @override
   Future<List<Commit>> getCommits() async {
     final commitRange = await _getCommitRange();
-    await _processManager.run(['git', 'checkout', '-b', 'temp']);
     final result = await _processManager
         .run(['git', 'log', commitRange, '--grep=^.*:', '--pretty=%s']);
     if (result.exitCode != ExitCode.success.code) {

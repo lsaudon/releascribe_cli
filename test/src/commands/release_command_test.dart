@@ -192,9 +192,6 @@ void main() {
       const versionTag = 'v1.3.0+2';
       const versionBranch = 'releascribe-$versionTag';
       when(
-        () => processManager.run(['git', 'checkout', '-b', 'temp']),
-      ).thenAnswer((final _) async => ProcessResult(0, 0, '', ''));
-      when(
         () => processManager.run(['git', 'checkout', '-b', versionBranch]),
       ).thenAnswer((final _) async => ProcessResult(0, 0, '', ''));
       when(
@@ -243,7 +240,6 @@ void main() {
       const versionTag = 'v1.3.0+2';
       const versionBranch = 'releascribe-$versionTag';
       for (final c in [
-        ['git', 'checkout', '-b', 'temp'],
         ['git', 'checkout', '-b', versionBranch],
         ['git', 'add', 'pubspec.yaml', 'CHANGELOG.md'],
         ['git', 'commit', '-m', 'chore: $versionTag'],
