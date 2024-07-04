@@ -45,11 +45,30 @@ class VersionControlGitAdapter implements VersionControlPort {
   Future<void> createVersion({required final Version version}) async {
     final versionTag = 'v$version';
     final branchName = 'releascribe-$versionTag';
-    await _processManager.run(['git', 'checkout', '-b', branchName]);
-    await _processManager.run(['git', 'add', 'pubspec.yaml', 'CHANGELOG.md']);
-    await _processManager.run(['git', 'commit', '-m', 'chore: $versionTag']);
-    await _processManager
+    final checkout =
+        await _processManager.run(['git', 'checkout', '-b', branchName]);
+    if (checkout.exitCode != ExitCode.success.code) {
+      _logger.err('Failed to create branch $branchName.');
+      return;
+    }
+    final addFiles = await _processManager
+        .run(['git', 'add', 'pubspec.yaml', 'CHANGELOG.md']);
+    if (addFiles.exitCode != ExitCode.success.code) {
+      _logger.err('Failed to add files to commit.');
+      return;
+    }
+    final commit = await _processManager
+        .run(['git', 'commit', '-m', 'chore: $versionTag']);
+    if (commit.exitCode != ExitCode.success.code) {
+      _logger.err('Failed to commit changes.');
+      return;
+    }
+    final push = await _processManager
         .run(['git', 'push', '--set-upstream', 'origin', branchName]);
+    if (push.exitCode != ExitCode.success.code) {
+      _logger.err('Failed to push branch $branchName.');
+      return;
+    }
     _logger.info('Branch $branchName created.');
   }
 }
