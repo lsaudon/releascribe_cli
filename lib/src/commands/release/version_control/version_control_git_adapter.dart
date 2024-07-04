@@ -54,6 +54,18 @@ class VersionControlGitAdapter implements VersionControlPort {
     await _processManager.run(['git', 'commit', '-m', 'chore: $versionTag']);
     await _processManager
         .run(['git', 'push', '--set-upstream', 'origin', branchName]);
-    _logger.info('Branch $branchName created.');
+    await _processManager.run([
+      'gh',
+      'pr',
+      'create',
+      '--title',
+      '"New version"',
+      '--body',
+      'Body',
+      '--base',
+      'main',
+      '--head',
+      branchName,
+    ]);
   }
 }

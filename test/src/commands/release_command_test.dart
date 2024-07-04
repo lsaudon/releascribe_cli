@@ -199,6 +199,19 @@ void main() {
         ['git', 'add', 'pubspec.yaml', 'CHANGELOG.md'],
         ['git', 'commit', '-m', 'chore: $versionTag'],
         ['git', 'push', '--set-upstream', 'origin', versionBranch],
+        [
+          'gh',
+          'pr',
+          'create',
+          '--title',
+          '"New version"',
+          '--body',
+          'Body',
+          '--base',
+          'main',
+          '--head',
+          versionBranch,
+        ],
       ]) {
         when(
           () => processManager.run(c),
@@ -243,10 +256,22 @@ void main() {
         ['git', 'add', 'pubspec.yaml', 'CHANGELOG.md'],
         ['git', 'commit', '-m', 'chore: $versionTag'],
         ['git', 'push', '--set-upstream', 'origin', versionBranch],
+        [
+          'gh',
+          'pr',
+          'create',
+          '--title',
+          '"New version"',
+          '--body',
+          'Body',
+          '--base',
+          'main',
+          '--head',
+          versionBranch,
+        ],
       ]) {
         verify(() => processManager.run(c));
       }
-      verify(() => logger.info('Branch $versionBranch created.'));
     }
 
     test('generate CHANGELOG.md when no previous tags exist', () async {
