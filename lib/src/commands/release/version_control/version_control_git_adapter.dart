@@ -44,7 +44,6 @@ class VersionControlGitAdapter implements VersionControlPort {
     await _processManager.run(['git', 'checkout', '-b', branchName]);
     await _processManager.run(['git', 'add', 'pubspec.yaml', 'CHANGELOG.md']);
     await _processManager.run(['git', 'commit', '-m', 'chore: $versionTag']);
-    await _processManager.run(['git', 'tag', versionTag]);
     await _processManager
         .run(['git', 'push', '--atomic', 'origin', branchName, versionTag]);
   }
