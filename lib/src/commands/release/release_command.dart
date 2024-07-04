@@ -48,8 +48,9 @@ class ReleaseCommand extends Command<int> {
   @override
   Future<int> run() async {
     final commitCategories = await _parseCommitCategoriesFromFile();
-    final versionControlPort =
-        VersionControlGitAdapter(processManager: _processManager);
+    final versionControlPort = VersionControlGitAdapter(
+      processManager: _processManager,
+    );
     final commits = await versionControlPort.getCommits();
 
     final commitCategoryRegistry =

@@ -1,0 +1,40 @@
+name: continuous-delivery
+
+on:
+  workflow_dispatch
+
+env:
+  FLUTTER_VERSION: 3.22.2
+
+jobs:
+  continuous-delivery-ios:
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: example/ios
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          cache: true
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+      - run: cat ../pubspec.yaml
+      # - run: |
+      #     keychainPassword='cat /dev/urandom | LC_ALL=C tr -dc 'a-zA-Z0-9' | fold -w 50 | head -n 1'
+      #     security create-keychain -p "$keychainPassword" ios_signing_temp.keychain
+      #     security set-keychain-settings -lut 21600 ios_signing_temp.keychain
+      #     security unlock-keychain -p "$keychainPassword" ios_signing_temp.keychain
+
+      #     echo "${{ secrets.DEV_P12_FILE }}" | base64 --decode -o Certificates.p12
+      #     security import Certificates.p12 -P "${{ secrets.DEV_P12_PWD }}" -A -t cert -f pkcs12 -k ios_signing_temp.keychain
+      #     security list-keychain -d user -s ios_signing_temp.keychain
+      # - run: |
+      #     echo ${{ secrets.DEV_IOS_PROFILE }} | base64 --decode -o ProvisioningProfile.mobileprovision
+      #     mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+      #     uuid=`security cms -D -i ProvisioningProfile.mobileprovision | grep -aA1 UUID | grep -o "[-a-zA-Z0-9]\{36\}"`
+      #     cp ProvisioningProfile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/$uuid.mobileprovision
+      # - run: echo ${{ secrets.DEV_IOS_PLIST }} | base64 --decode -o exportOptions.plist
+      # - run: |
+      #     flutter config --no-cli-animations
+      #     flutter build ipa --export-options-plist exportOptions.plist

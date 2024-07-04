@@ -74,8 +74,7 @@ environment:
     });
 
     test(
-      'Does not show update message when the shell calls the '
-      'completion command',
+      'Does not show update message when the shell calls the completion command',
       () async {
         when(
           () => pubUpdater.getLatestVersion(any()),

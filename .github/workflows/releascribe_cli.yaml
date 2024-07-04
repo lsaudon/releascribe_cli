@@ -7,7 +7,7 @@ concurrency:
 on:
   pull_request:
     paths:
-      - ".github/workflows/releascribe_cli.yaml"
+      - ".github/workflows/**"
       - "lib/**"
       - "test/**"
       - "pubspec.yaml"
@@ -15,7 +15,7 @@ on:
     branches:
       - main
     paths:
-      - ".github/workflows/releascribe_cli.yaml"
+      - ".github/workflows/**"
       - "lib/**"
       - "test/**"
       - "pubspec.yaml"
@@ -24,6 +24,9 @@ jobs:
 
   build:
     uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/dart_package.yml@v1
+    with:
+      no_example: true
+      min_coverage: 97
 
   verify-version:
     runs-on: ubuntu-latest
@@ -37,8 +40,7 @@ jobs:
           sdk: "stable"
 
       - name: 📦 Install Dependencies
-        run: |
-          dart pub get
+        run: dart pub get --no-example
 
       - name: 🔎 Verify version
         run: dart run test --run-skipped -t version-verify

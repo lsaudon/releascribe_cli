@@ -191,24 +191,33 @@ void main() {
       processManager = _MockProcessManager();
       const versionTag = 'v1.3.0+2';
       const versionBranch = 'releascribe-$versionTag';
-      when(
-        () => processManager.run(['git', 'checkout', '-b', versionBranch]),
-      ).thenAnswer((final _) async => ProcessResult(0, 0, '', ''));
-      when(
-        () =>
-            processManager.run(['git', 'add', 'pubspec.yaml', 'CHANGELOG.md']),
-      ).thenAnswer((final _) async => ProcessResult(0, 0, '', ''));
-      when(
-        () => processManager.run(['git', 'commit', '-m', 'chore: $versionTag']),
-      ).thenAnswer((final _) async => ProcessResult(0, 0, '', ''));
-      when(() => processManager.run(['git', 'tag', versionTag]))
-          .thenAnswer((final _) async => ProcessResult(0, 0, '', ''));
-      when(
-        () => processManager.run(
-          ['git', 'push', '--atomic', 'origin', versionBranch, versionTag],
-        ),
-      ).thenAnswer((final _) async => ProcessResult(0, 0, '', ''));
 
+      const commitMessage = 'chore: $versionTag';
+      for (final c in [
+        ['git', 'config', 'user.name', 'Releascribe Bot'],
+        ['git', 'config', 'user.email', 'bot@releascribe.com'],
+        ['git', 'checkout', '-b', versionBranch],
+        ['git', 'add', 'pubspec.yaml', 'CHANGELOG.md'],
+        ['git', 'commit', '-m', commitMessage],
+        ['git', 'push', '--set-upstream', 'origin', versionBranch],
+        [
+          'gh',
+          'pr',
+          'create',
+          '--title',
+          commitMessage,
+          '--body',
+          'Body',
+          '--base',
+          'main',
+          '--head',
+          versionBranch,
+        ],
+      ]) {
+        when(
+          () => processManager.run(c),
+        ).thenAnswer((final _) async => ProcessResult(0, 0, '', ''));
+      }
       final pubUpdater = _MockPubUpdater();
 
       when(() => pubUpdater.getLatestVersion(any()))
@@ -241,12 +250,27 @@ void main() {
       expect(changelogFime, changeLogExpected);
       const versionTag = 'v1.3.0+2';
       const versionBranch = 'releascribe-$versionTag';
+      const commitMessage = 'chore: $versionTag';
       for (final c in [
+        ['git', 'config', 'user.name', 'Releascribe Bot'],
+        ['git', 'config', 'user.email', 'bot@releascribe.com'],
         ['git', 'checkout', '-b', versionBranch],
         ['git', 'add', 'pubspec.yaml', 'CHANGELOG.md'],
         ['git', 'commit', '-m', 'chore: $versionTag'],
-        ['git', 'tag', versionTag],
-        ['git', 'push', '--atomic', 'origin', versionBranch, versionTag],
+        ['git', 'push', '--set-upstream', 'origin', versionBranch],
+        [
+          'gh',
+          'pr',
+          'create',
+          '--title',
+          commitMessage,
+          '--body',
+          'Body',
+          '--base',
+          'main',
+          '--head',
+          versionBranch,
+        ],
       ]) {
         verify(() => processManager.run(c));
       }

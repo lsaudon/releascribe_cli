@@ -9,7 +9,7 @@
 To use `releascribe_cli`, ensure you have Dart SDK installed. You can install `releascribe_cli` globally using Dart's package manager, `pub`:
 
 ```sh
-pub global activate releascribe_cli
+dart pub global activate releascribe_cli
 ```
 
 ## Usage

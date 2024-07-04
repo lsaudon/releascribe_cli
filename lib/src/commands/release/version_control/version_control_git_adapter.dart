@@ -5,8 +5,9 @@ import 'package:releascribe_cli/src/commands/release/version_control/commit.dart
 import 'package:releascribe_cli/src/commands/release/version_control/version_control_port.dart';
 
 class VersionControlGitAdapter implements VersionControlPort {
-  VersionControlGitAdapter({required final ProcessManager processManager})
-      : _processManager = processManager;
+  VersionControlGitAdapter({
+    required final ProcessManager processManager,
+  }) : _processManager = processManager;
 
   final ProcessManager _processManager;
 
@@ -41,11 +42,28 @@ class VersionControlGitAdapter implements VersionControlPort {
   Future<void> createVersion({required final Version version}) async {
     final versionTag = 'v$version';
     final branchName = 'releascribe-$versionTag';
+    await _processManager
+        .run(['git', 'config', 'user.name', 'Releascribe Bot']);
+    await _processManager
+        .run(['git', 'config', 'user.email', 'bot@releascribe.com']);
     await _processManager.run(['git', 'checkout', '-b', branchName]);
     await _processManager.run(['git', 'add', 'pubspec.yaml', 'CHANGELOG.md']);
-    await _processManager.run(['git', 'commit', '-m', 'chore: $versionTag']);
-    await _processManager.run(['git', 'tag', versionTag]);
+    final commitMessage = 'chore: $versionTag';
+    await _processManager.run(['git', 'commit', '-m', commitMessage]);
     await _processManager
-        .run(['git', 'push', '--atomic', 'origin', branchName, versionTag]);
+        .run(['git', 'push', '--set-upstream', 'origin', branchName]);
+    await _processManager.run([
+      'gh',
+      'pr',
+      'create',
+      '--title',
+      commitMessage,
+      '--body',
+      'Body',
+      '--base',
+      'main',
+      '--head',
+      branchName,
+    ]);
   }
 }
