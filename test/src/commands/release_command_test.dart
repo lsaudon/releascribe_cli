@@ -201,8 +201,6 @@ void main() {
       when(
         () => processManager.run(['git', 'commit', '-m', 'chore: $versionTag']),
       ).thenAnswer((final _) async => ProcessResult(0, 0, '', ''));
-      when(() => processManager.run(['git', 'tag', versionTag]))
-          .thenAnswer((final _) async => ProcessResult(0, 0, '', ''));
       when(
         () => processManager.run(
           ['git', 'push', '--atomic', 'origin', versionBranch, versionTag],
@@ -245,7 +243,6 @@ void main() {
         ['git', 'checkout', '-b', versionBranch],
         ['git', 'add', 'pubspec.yaml', 'CHANGELOG.md'],
         ['git', 'commit', '-m', 'chore: $versionTag'],
-        ['git', 'tag', versionTag],
         ['git', 'push', '--atomic', 'origin', versionBranch, versionTag],
       ]) {
         verify(() => processManager.run(c));
