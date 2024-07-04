@@ -1,0 +1,23 @@
+name: launch-continuous-delivery
+
+on:
+    workflow_dispatch
+
+env:
+  FLUTTER_VERSION: 3.22.2
+
+jobs:
+  continuous-delivery-ios:
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: example/ios
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          cache: true
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+      - run: |
+          keychainPassword='cat /dev/urandom | LC_ALL=C tr -dc 'a-zA-Z0-9' | fold -w 50 | head -n 1'
