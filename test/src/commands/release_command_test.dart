@@ -191,22 +191,19 @@ void main() {
       processManager = _MockProcessManager();
       const versionTag = 'v1.3.0+2';
       const versionBranch = 'releascribe-$versionTag';
-      when(
-        () => processManager.run(['git', 'checkout', '-b', versionBranch]),
-      ).thenAnswer((final _) async => ProcessResult(0, 0, '', ''));
-      when(
-        () =>
-            processManager.run(['git', 'add', 'pubspec.yaml', 'CHANGELOG.md']),
-      ).thenAnswer((final _) async => ProcessResult(0, 0, '', ''));
-      when(
-        () => processManager.run(['git', 'commit', '-m', 'chore: $versionTag']),
-      ).thenAnswer((final _) async => ProcessResult(0, 0, '', ''));
-      when(
-        () => processManager.run(
-          ['git', 'push', '--set-upstream', 'origin', versionBranch],
-        ),
-      ).thenAnswer((final _) async => ProcessResult(0, 0, '', ''));
 
+      for (final c in [
+        ['git', 'config', 'user.name', 'Releascribe Bot'],
+        ['git', 'config', 'user.email', 'bot@releascribe.com'],
+        ['git', 'checkout', '-b', versionBranch],
+        ['git', 'add', 'pubspec.yaml', 'CHANGELOG.md'],
+        ['git', 'commit', '-m', 'chore: $versionTag'],
+        ['git', 'push', '--set-upstream', 'origin', versionBranch],
+      ]) {
+        when(
+          () => processManager.run(c),
+        ).thenAnswer((final _) async => ProcessResult(0, 0, '', ''));
+      }
       final pubUpdater = _MockPubUpdater();
 
       when(() => pubUpdater.getLatestVersion(any()))
@@ -240,6 +237,8 @@ void main() {
       const versionTag = 'v1.3.0+2';
       const versionBranch = 'releascribe-$versionTag';
       for (final c in [
+        ['git', 'config', 'user.name', 'Releascribe Bot'],
+        ['git', 'config', 'user.email', 'bot@releascribe.com'],
         ['git', 'checkout', '-b', versionBranch],
         ['git', 'add', 'pubspec.yaml', 'CHANGELOG.md'],
         ['git', 'commit', '-m', 'chore: $versionTag'],

@@ -45,29 +45,15 @@ class VersionControlGitAdapter implements VersionControlPort {
   Future<void> createVersion({required final Version version}) async {
     final versionTag = 'v$version';
     final branchName = 'releascribe-$versionTag';
-    final checkout =
-        await _processManager.run(['git', 'checkout', '-b', branchName]);
-    if (checkout.exitCode != ExitCode.success.code) {
-      _logger.err('Failed to create branch $branchName. ${checkout.stderr}');
-      return;
-    }
-    final addFiles = await _processManager
-        .run(['git', 'add', 'pubspec.yaml', 'CHANGELOG.md']);
-    if (addFiles.exitCode != ExitCode.success.code) {
-      _logger.err('Failed to add files to commit. ${addFiles.stderr}');
-      return;
-    }
-    final commit = await _processManager
-        .run(['git', 'commit', '-m', 'chore: $versionTag']);
-    if (commit.exitCode != ExitCode.success.code) {
-      _logger.err('Failed to commit changes. ${commit.stderr}');
-      return;
-    }
-    final push = await _processManager
+    await _processManager
+        .run(['git', 'config', 'user.name', 'Releascribe Bot']);
+    await _processManager
+        .run(['git', 'config', 'user.email', 'bot@releascribe.com']);
+    await _processManager.run(['git', 'checkout', '-b', branchName]);
+    await _processManager.run(['git', 'add', 'pubspec.yaml', 'CHANGELOG.md']);
+    await _processManager.run(['git', 'commit', '-m', 'chore: $versionTag']);
+    await _processManager
         .run(['git', 'push', '--set-upstream', 'origin', branchName]);
-    if (push.exitCode != ExitCode.success.code) {
-      _logger.err('Failed to push branch $branchName. ${push.stderr}');
-      return;
-    }
+    _logger.info('Branch $branchName created.');
   }
 }
