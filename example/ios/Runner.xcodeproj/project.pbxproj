@@ -376,7 +376,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = fr.lsaudon.example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = example_app_store_profile;
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = ExampleProvisioningProfile;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
@@ -568,7 +568,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = fr.lsaudon.example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = example_app_store_profile;
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = ExampleProvisioningProfile;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
@@ -601,7 +601,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = fr.lsaudon.example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = example_app_store_profile;
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = ExampleProvisioningProfile;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
