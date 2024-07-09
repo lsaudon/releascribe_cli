@@ -1,5 +1,5 @@
-## 🔖 [1.0.3+4]
+## 🔖 [1.1.0+5]
 
-### 🐛 Bug Fixes
+### ✨ Features
 
-- Don't push tag
+- Replace `releascribe_cli` to `releascribe`
