@@ -1,3 +1,9 @@
+## 🔖 [1.1.1+8]
+
+### 🐛 Bug Fixes
+
+- push tags 'release*'
+
 ## 🔖 [1.1.0+7]
 
 ### ✨ Features
