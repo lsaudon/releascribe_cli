@@ -2,8 +2,6 @@ name: Continuous Delivery
 
 on:
   push:
-    branches:
-      - 'main'
     tags:
       - 'release-*'
 
