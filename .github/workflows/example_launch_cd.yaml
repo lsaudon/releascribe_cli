@@ -1,6 +1,8 @@
 name: Launch Continuous Delivery
 on:
   workflow_dispatch
+permissions:
+  contents: write
 jobs:
   continuous-delivery-ios:
     runs-on: ubuntu-latest
