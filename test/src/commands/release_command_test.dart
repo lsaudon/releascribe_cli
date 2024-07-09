@@ -189,30 +189,16 @@ void main() {
     setUp(() {
       logger = _MockLogger();
       processManager = _MockProcessManager();
-      const versionTag = 'v1.3.0+2';
-      const versionBranch = 'releascribe-$versionTag';
-
-      const commitMessage = 'chore: $versionTag';
+      const tag = 'v1.3.0+2';
+      const commitMessage = 'chore: $tag';
       for (final c in [
         ['git', 'config', 'user.name', 'Releascribe Bot'],
         ['git', 'config', 'user.email', 'bot@releascribe.com'],
-        ['git', 'checkout', '-b', versionBranch],
         ['git', 'add', 'pubspec.yaml', 'CHANGELOG.md'],
         ['git', 'commit', '-m', commitMessage],
-        ['git', 'push', '--set-upstream', 'origin', versionBranch],
-        [
-          'gh',
-          'pr',
-          'create',
-          '--title',
-          commitMessage,
-          '--body',
-          'Body',
-          '--base',
-          'main',
-          '--head',
-          versionBranch,
-        ],
+        ['git', 'tag', tag],
+        ['git', 'push'],
+        ['git', 'push', 'origin', 'tag', tag],
       ]) {
         when(
           () => processManager.run(c),
@@ -248,29 +234,15 @@ void main() {
       final changelogFime =
           await fileSystem.file('CHANGELOG.md').readAsString();
       expect(changelogFime, changeLogExpected);
-      const versionTag = 'v1.3.0+2';
-      const versionBranch = 'releascribe-$versionTag';
-      const commitMessage = 'chore: $versionTag';
+      const tag = 'v1.3.0+2';
       for (final c in [
         ['git', 'config', 'user.name', 'Releascribe Bot'],
         ['git', 'config', 'user.email', 'bot@releascribe.com'],
-        ['git', 'checkout', '-b', versionBranch],
         ['git', 'add', 'pubspec.yaml', 'CHANGELOG.md'],
-        ['git', 'commit', '-m', 'chore: $versionTag'],
-        ['git', 'push', '--set-upstream', 'origin', versionBranch],
-        [
-          'gh',
-          'pr',
-          'create',
-          '--title',
-          commitMessage,
-          '--body',
-          'Body',
-          '--base',
-          'main',
-          '--head',
-          versionBranch,
-        ],
+        ['git', 'commit', '-m', 'chore: $tag'],
+        ['git', 'tag', tag],
+        ['git', 'push'],
+        ['git', 'push', 'origin', 'tag', tag],
       ]) {
         verify(() => processManager.run(c));
       }
