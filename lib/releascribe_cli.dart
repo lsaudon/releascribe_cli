@@ -1,10 +1,10 @@
-/// releascribe_cli, Your Storyteller for Seamless Releases
+/// Your Storyteller for Seamless Releases
 ///
 /// ```sh
 /// # activate releascribe_cli
 /// dart pub global activate releascribe_cli
 ///
 /// # see usage
-/// releascribe_cli --help
+/// releascribe --help
 /// ```
 library;

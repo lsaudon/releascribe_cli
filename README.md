@@ -2,11 +2,11 @@
 
 ## Overview
 
-`releascribe_cli` is a command-line interface tool written in Dart for automating software release management tasks. It integrates with version control systems, generates changelogs, determines project versions, and applies versioning changes based on commit categories defined in a JSON file.
+`releascribe` is a command-line interface tool written in Dart for automating software release management tasks. It integrates with version control systems, generates changelogs, determines project versions, and applies versioning changes based on commit categories defined in a JSON file.
 
 ## Installation
 
-To use `releascribe_cli`, ensure you have Dart SDK installed. You can install `releascribe_cli` globally using Dart's package manager, `pub`:
+To use `releascribe`, ensure you have Dart SDK installed. You can install `releascribe` globally using Dart's package manager, `pub`:
 
 ```sh
 dart pub global activate releascribe_cli
@@ -17,7 +17,7 @@ dart pub global activate releascribe_cli
 ### Command Syntax
 
 ```sh
-releascribe_cli release [-r <path_to_release_info_file>]
+releascribe release [-r <path_to_release_info_file>]
 ```
 
 ### Options
@@ -88,7 +88,7 @@ Create a file named `release-info.json` with the following content:
 Execute the following command in your terminal to manage software releases based on the commit categories defined in `release-info.json`:
 
 ```sh
-releascribe_cli release -r release-info.json
+releascribe release -r release-info.json
 ```
 
 - **Description**: This command generates a changelog, determines the next project version, and updates versioning information according to the commit categories specified in `release-info.json`.

@@ -27,4 +27,4 @@ dev_dependencies:
   test: ^1.25.8
 
 executables:
-  releascribe_cli:
+  releascribe:
