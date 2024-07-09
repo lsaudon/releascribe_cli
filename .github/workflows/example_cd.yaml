@@ -2,8 +2,10 @@ name: Continuous Delivery
 
 on:
   push:
+    branches:
+      - 'main'
     tags:
-      - release-*
+      - 'release-*'
 
 env:
   FLUTTER_VERSION: 3.22.2
