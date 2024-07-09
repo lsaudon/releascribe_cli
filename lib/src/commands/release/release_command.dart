@@ -71,17 +71,17 @@ class ReleaseCommand extends Command<int> {
     }
     final versionPort = VersionPubAdapter(fileSystem: _fileSystem);
     final currentVersion = await versionPort.getCurrentVersion();
-    final version = getNextVersion(
+    final version = _getNextVersion(
       currentVersion,
       messagesByTypes.keys.map((final e) => e.version).toList(),
     );
-    final changeLog = generate(
+    final changeLog = _generate(
       commitCategoryRegistry: commitCategoryRegistry,
       version: version,
       messagesByType: messagesByTypes,
     );
     await versionPort.setVersion(version);
-    await _fileSystem.file('CHANGELOG.md').writeAsString(changeLog);
+    await _updateChangelog(changeLog);
     await versionControlPort.createVersion(version: version);
     return ExitCode.success.code;
   }
@@ -110,7 +110,7 @@ class ReleaseCommand extends Command<int> {
     return null;
   }
 
-  Version getNextVersion(
+  Version _getNextVersion(
     final Version currentVersion,
     final List<SemanticVersionType> versionTypes,
   ) {
@@ -153,7 +153,7 @@ class ReleaseCommand extends Command<int> {
     );
   }
 
-  String generate({
+  String _generate({
     required final CommitCategoryRegistry commitCategoryRegistry,
     required final Version version,
     required final Map<CommitCategory, List<ConventionalCommit>> messagesByType,
@@ -174,5 +174,15 @@ class ReleaseCommand extends Command<int> {
     }
 
     return buffer.toString();
+  }
+
+  Future<void> _updateChangelog(final String changeLog) async {
+    final changelogFile = _fileSystem.file('CHANGELOG.md');
+    if (await changelogFile.exists()) {
+      final oldChangeLog = await changelogFile.readAsString();
+      await changelogFile.writeAsString('$changeLog\n$oldChangeLog');
+    } else {
+      await changelogFile.writeAsString(changeLog);
+    }
   }
 }

@@ -10,115 +10,19 @@ import 'package:pub_updater/pub_updater.dart';
 import 'package:releascribe_cli/src/command_runner.dart';
 import 'package:test/test.dart';
 
+import 'changelog_content.dart';
+import 'changelog_content_before.dart';
+import 'changelog_content_from_json_file.dart';
+import 'help_message.dart';
+import 'pubspec_content.dart';
+import 'updated_pubspec_content.dart';
+
 // Mock Classes
 class _MockLogger extends Mock implements Logger {}
 
 class _MockPubUpdater extends Mock implements PubUpdater {}
 
 class _MockProcessManager extends Mock implements ProcessManager {}
-
-// Constants for Test Data
-const changelogContent = '''
-## 🔖 [1.3.0+2]
-
-### 🐛 Bug Fixes
-
-- fixed authentication
-
-### ✨ Features
-
-- added performance benchmark
-- **Profile:** added profile page
-
-### ♻️ Code Refactoring
-
-- optimized user profile
-
-### ⚡️ Performance Improvements
-
-- refactored login page
-
-### 🧪 Tests
-
-- updated testing framework
-
-### 📝 Documentation
-
-- updated README file
-
-### 🧱 Build
-
-- created database connection
-
-### 🎞️ Workflow
-
-- updated CI/CD pipeline
-
-### 🧹 Chores
-
-- removed CI/CD pipeline
-- removed testing framework
-''';
-const String changelogContentFromJsonFile = '''
-## 🔖 [1.3.0+2]
-
-### 🐛 Corrections de bugs
-
-- fixed authentication
-
-### ✨ Fonctionnalités
-
-- added performance benchmark
-- **Profile:** added profile page
-
-### ♻️ Refonte du code
-
-- optimized user profile
-
-### ⚡️ Amélioration des performances
-
-- refactored login page
-
-### 🧪 Tests
-
-- updated testing framework
-
-### 📝 Documentation
-
-- updated README file
-
-### 🧱 Construction
-
-- created database connection
-
-### 🎞️ Flux de travail
-
-- updated CI/CD pipeline
-
-### 🧹 Tâches
-
-- removed CI/CD pipeline
-- removed testing framework
-''';
-
-const String helpMessage = '''
-Usage: $executableName release [arguments]
--h, --help                 Print this usage information.
--r, --release-info-file    Path to a JSON file containing release information.
-
-Run "$executableName help" to see global options.''';
-
-const String pubspecContent = '''
-name: example
-version: 1.2.3+1
-environment:
-  sdk: ">=3.0.0 <4.0.0"''';
-
-const String updatedPubspecContent = '''
-name: example
-version: 1.3.0+2
-environment:
-  sdk: ">=3.0.0 <4.0.0"''';
 
 // Helper Function to Create File System
 MemoryFileSystem _createTestFileSystem() {
@@ -322,6 +226,20 @@ void main() {
           releaseInfoFile,
         ],
         changeLogExpected: changelogContentFromJsonFile,
+      );
+    });
+
+    test('Add above the changelog.md file', () async {
+      fileSystem.file('CHANGELOG.md')
+        ..createSync()
+        ..writeAsStringSync(changelogContentBefore);
+
+      _mockProcessResultsForLatestTag(processManager);
+
+      await runReleaseAndValidateChangelog(
+        commandRunner,
+        fileSystem,
+        changeLogExpected: '$changelogContent\n$changelogContentBefore',
       );
     });
 
