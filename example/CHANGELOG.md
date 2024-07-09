@@ -1,5 +1,5 @@
-## 🔖 [1.0.3+4]
+## 🔖 [1.0.4+5]
 
-### 🐛 Bug Fixes
+### 🧹 Chores
 
-- Don't push tag
+- Add GitHub Actions workflow to create a tag on PR merge
