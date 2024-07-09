@@ -3,7 +3,7 @@ name: Continuous Delivery
 on:
   push:
     tags:
-      - 'release-*'
+      - 'release*'
 
 env:
   FLUTTER_VERSION: 3.22.2
