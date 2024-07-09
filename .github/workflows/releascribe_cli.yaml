@@ -1,4 +1,4 @@
-name: releascribe_cli
+name: Continuous Integration
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
