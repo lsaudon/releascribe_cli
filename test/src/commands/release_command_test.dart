@@ -189,8 +189,9 @@ void main() {
     setUp(() {
       logger = _MockLogger();
       processManager = _MockProcessManager();
-      const tag = 'v1.3.0+2';
-      const commitMessage = 'chore: $tag';
+      const version = '1.3.0+2';
+      const commitMessage = 'chore: $version';
+      const tag = 'release-$version';
       for (final c in [
         ['git', 'config', 'user.name', 'Releascribe Bot'],
         ['git', 'config', 'user.email', 'bot@releascribe.com'],
@@ -234,12 +235,14 @@ void main() {
       final changelogFime =
           await fileSystem.file('CHANGELOG.md').readAsString();
       expect(changelogFime, changeLogExpected);
-      const tag = 'v1.3.0+2';
+      const version = '1.3.0+2';
+      const commitMessage = 'chore: $version';
+      const tag = 'release-$version';
       for (final c in [
         ['git', 'config', 'user.name', 'Releascribe Bot'],
         ['git', 'config', 'user.email', 'bot@releascribe.com'],
         ['git', 'add', 'pubspec.yaml', 'CHANGELOG.md'],
-        ['git', 'commit', '-m', 'chore: $tag'],
+        ['git', 'commit', '-m', commitMessage],
         ['git', 'tag', tag],
         ['git', 'push'],
         ['git', 'push', 'origin', 'tag', tag],

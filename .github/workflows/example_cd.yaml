@@ -1,7 +1,9 @@
 name: Continuous Delivery
 
 on:
-  workflow_dispatch
+  push:
+    tags:
+      - release-*
 
 env:
   FLUTTER_VERSION: 3.22.2

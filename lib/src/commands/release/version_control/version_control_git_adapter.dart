@@ -40,14 +40,13 @@ class VersionControlGitAdapter implements VersionControlPort {
 
   @override
   Future<void> createVersion({required final Version version}) async {
-    final tag = 'v$version';
+    final tag = 'release-$version';
     await _processManager
         .run(['git', 'config', 'user.name', 'Releascribe Bot']);
     await _processManager
         .run(['git', 'config', 'user.email', 'bot@releascribe.com']);
     await _processManager.run(['git', 'add', 'pubspec.yaml', 'CHANGELOG.md']);
-    final commitMessage = 'chore: $tag';
-    await _processManager.run(['git', 'commit', '-m', commitMessage]);
+    await _processManager.run(['git', 'commit', '-m', 'chore: $version']);
     await _processManager.run(['git', 'tag', tag]);
     await _processManager.run(['git', 'push']);
     await _processManager.run(['git', 'push', 'origin', 'tag', tag]);
