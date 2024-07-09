@@ -9,7 +9,7 @@ import 'package:releascribe_cli/src/commands/release/release_command.dart';
 import 'package:releascribe_cli/src/commands/update_command.dart';
 import 'package:releascribe_cli/src/version.dart';
 
-const String executableName = 'releascribe_cli';
+const String executableName = 'releascribe';
 const String packageName = 'releascribe_cli';
 const String description = 'Your Storyteller for Seamless Releases';
 
@@ -17,7 +17,7 @@ const String description = 'Your Storyteller for Seamless Releases';
 /// A [CommandRunner] for the CLI.
 ///
 /// ```sh
-/// $ releascribe_cli --version
+/// $ releascribe --version
 /// ```
 /// {@endtemplate}
 class ReleascribeCliCommandRunner extends CompletionCommandRunner<int> {

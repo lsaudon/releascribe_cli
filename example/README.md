@@ -4,7 +4,7 @@
 
 ```sh
 # Release command
-releascribe_cli release
+releascribe release
 ```
 
 release-info.json
@@ -63,5 +63,5 @@ release-info.json
 
 ```sh
 # Release command option
-releascribe_cli release -release-info-file release-info.json
+releascribe release -release-info-file release-info.json
 ```
