@@ -1,5 +1,5 @@
-## 🔖 [1.0.4+5]
+## 🔖 [1.0.5+6]
 
 ### 🧹 Chores
 
-- Add GitHub Actions workflow to create a tag on PR merge
+- Use 'release-' prefix for tags
