@@ -93,22 +93,6 @@ void main() {
     setUp(() {
       logger = _MockLogger();
       processManager = _MockProcessManager();
-      const version = '1.3.0+2';
-      const commitMessage = 'chore: $version';
-      const tag = 'release-$version';
-      for (final c in [
-        ['git', 'config', 'user.name', 'Releascribe Bot'],
-        ['git', 'config', 'user.email', 'bot@releascribe.com'],
-        ['git', 'add', 'pubspec.yaml', 'CHANGELOG.md'],
-        ['git', 'commit', '-m', commitMessage],
-        ['git', 'tag', tag],
-        ['git', 'push'],
-        ['git', 'push', 'origin', 'tag', tag],
-      ]) {
-        when(
-          () => processManager.run(c),
-        ).thenAnswer((final _) async => ProcessResult(0, 0, '', ''));
-      }
       final pubUpdater = _MockPubUpdater();
 
       when(() => pubUpdater.getLatestVersion(any()))
@@ -124,53 +108,44 @@ void main() {
       );
     });
 
-    Future<void> runReleaseAndValidateChangelog(
-      final ReleascribeCliCommandRunner commandRunner,
-      final FileSystem fileSystem, {
-      final Iterable<String> args = const ['release'],
-      final String changeLogExpected = changelogContent,
-    }) async {
-      final exitCode = await commandRunner.run(args);
+    test('generate CHANGELOG.md when no previous tags exist', () async {
+      _mockProcessResultsForNoTag(processManager);
+
+      final exitCode = await commandRunner.run(['release']);
       expect(exitCode, ExitCode.success.code);
 
       final pubspecFile = await fileSystem.file('pubspec.yaml').readAsString();
       expect(pubspecFile, updatedPubspecContent);
 
-      final changelogFime =
+      final changelogFile =
           await fileSystem.file('CHANGELOG.md').readAsString();
-      expect(changelogFime, changeLogExpected);
-      const version = '1.3.0+2';
-      const commitMessage = 'chore: $version';
-      const tag = 'release-$version';
-      for (final c in [
-        ['git', 'config', 'user.name', 'Releascribe Bot'],
-        ['git', 'config', 'user.email', 'bot@releascribe.com'],
-        ['git', 'add', 'pubspec.yaml', 'CHANGELOG.md'],
-        ['git', 'commit', '-m', commitMessage],
-        ['git', 'tag', tag],
-        ['git', 'push'],
-        ['git', 'push', 'origin', 'tag', tag],
-      ]) {
-        verify(() => processManager.run(c));
-      }
-    }
-
-    test('generate CHANGELOG.md when no previous tags exist', () async {
-      _mockProcessResultsForNoTag(processManager);
-
-      await runReleaseAndValidateChangelog(commandRunner, fileSystem);
+      expect(changelogFile, changelogContent);
     });
 
     test('generate CHANGELOG.md when previous tag exists', () async {
       _mockProcessResultsForLatestTag(processManager);
 
-      await runReleaseAndValidateChangelog(commandRunner, fileSystem);
+      final exitCode = await commandRunner.run(const ['release']);
+      expect(exitCode, ExitCode.success.code);
+
+      final pubspecFile = await fileSystem.file('pubspec.yaml').readAsString();
+      expect(pubspecFile, updatedPubspecContent);
+
+      final changelogFile =
+          await fileSystem.file('CHANGELOG.md').readAsString();
+      expect(changelogFile, changelogContent);
     });
 
     test('should handle release-info-file parameter correctly', () async {
       _mockProcessResultsForLatestTag(processManager);
 
       final releaseInfoContent = {
+        'output': [
+          {
+            'path': 'CHANGELOG.md',
+            'overwrite': false,
+          },
+        ],
         'changelog': [
           {
             'type': 'fix',
@@ -192,7 +167,11 @@ void main() {
             'description': '⚡️ Amélioration des performances',
             'increment': 'patch',
           },
-          {'type': 'test', 'description': '🧪 Tests', 'increment': 'patch'},
+          {
+            'type': 'test',
+            'description': '🧪 Tests',
+            'increment': 'patch',
+          },
           {
             'type': 'docs',
             'description': '📝 Documentation',
@@ -208,7 +187,11 @@ void main() {
             'description': '🎞️ Flux de travail',
             'increment': 'patch',
           },
-          {'type': 'chore', 'description': '🧹 Tâches', 'increment': 'patch'},
+          {
+            'type': 'chore',
+            'description': '🧹 Tâches',
+            'increment': 'patch',
+          },
         ],
       };
 
@@ -217,16 +200,19 @@ void main() {
         ..createSync()
         ..writeAsStringSync(jsonEncode(releaseInfoContent));
 
-      await runReleaseAndValidateChangelog(
-        commandRunner,
-        fileSystem,
-        args: [
-          'release',
-          '--release-info-file',
-          releaseInfoFile,
-        ],
-        changeLogExpected: changelogContentFromJsonFile,
-      );
+      final exitCode = await commandRunner.run([
+        'release',
+        '--release-info-file',
+        releaseInfoFile,
+      ]);
+      expect(exitCode, ExitCode.success.code);
+
+      final pubspecFile = await fileSystem.file('pubspec.yaml').readAsString();
+      expect(pubspecFile, updatedPubspecContent);
+
+      final changelogFile =
+          await fileSystem.file('CHANGELOG.md').readAsString();
+      expect(changelogFile, changelogContentFromJsonFile);
     });
 
     test('Add above the changelog.md file', () async {
@@ -236,11 +222,116 @@ void main() {
 
       _mockProcessResultsForLatestTag(processManager);
 
-      await runReleaseAndValidateChangelog(
-        commandRunner,
-        fileSystem,
-        changeLogExpected: '$changelogContent\n$changelogContentBefore',
-      );
+      final exitCode = await commandRunner.run(['release']);
+      expect(exitCode, ExitCode.success.code);
+
+      final pubspecFile = await fileSystem.file('pubspec.yaml').readAsString();
+      expect(pubspecFile, updatedPubspecContent);
+
+      final changelogFile =
+          await fileSystem.file('CHANGELOG.md').readAsString();
+      expect(changelogFile, '$changelogContent\n$changelogContentBefore');
+    });
+
+    test('Overwrite on release-notes.txt and add in CHANGELOG.md', () async {
+      final releaseInfoContent = {
+        'output': [
+          {
+            'path': 'CHANGELOG.md',
+            'overwrite': false,
+          },
+          {
+            'path': 'release-notes.txt',
+            'overwrite': true,
+          },
+        ],
+        'changelog': [
+          {
+            'type': 'fix',
+            'description': '🐛 Bug Fixes',
+            'increment': 'patch',
+          },
+          {
+            'type': 'feat',
+            'description': '✨ Features',
+            'increment': 'minor',
+          },
+          {
+            'type': 'refactor',
+            'description': '♻️ Code Refactoring',
+            'increment': 'patch',
+          },
+          {
+            'type': 'perf',
+            'description': '⚡️ Performance Improvements',
+            'increment': 'patch',
+          },
+          {
+            'type': 'test',
+            'description': '🧪 Tests',
+            'increment': 'patch',
+          },
+          {
+            'type': 'docs',
+            'description': '📝 Documentation',
+            'increment': 'patch',
+          },
+          {
+            'type': 'build',
+            'description': '🧱 Build',
+            'increment': 'patch',
+          },
+          {
+            'type': 'ci',
+            'description': '🎞️ Workflow',
+            'increment': 'patch',
+          },
+          {
+            'type': 'chore',
+            'description': '🧹 Chores',
+            'increment': 'patch',
+          },
+        ],
+      };
+      const releaseInfoFile = 'release-info.json';
+      fileSystem.file(releaseInfoFile)
+        ..createSync()
+        ..writeAsStringSync(jsonEncode(releaseInfoContent));
+
+      fileSystem.file('CHANGELOG.md')
+        ..createSync()
+        ..writeAsStringSync(changelogContentBefore);
+
+      fileSystem.file('release-notes.txt')
+        ..createSync()
+        ..writeAsStringSync(changelogContentBefore);
+
+      _mockProcessResultsForLatestTag(processManager);
+
+      final exitCode = await commandRunner.run([
+        'release',
+        '--release-info-file',
+        releaseInfoFile,
+      ]);
+      expect(exitCode, ExitCode.success.code);
+
+      final pubspecFile = await fileSystem.file('pubspec.yaml').readAsString();
+      expect(pubspecFile, updatedPubspecContent);
+
+      final changelogFile =
+          await fileSystem.file('CHANGELOG.md').readAsString();
+      expect(changelogFile, '$changelogContent\n$changelogContentBefore');
+      final releaseNotesFile =
+          await fileSystem.file('release-notes.txt').readAsString();
+      expect(releaseNotesFile, changelogContent);
+    });
+
+    test('show error message for invalid release command', () async {
+      final exitCode = await commandRunner.run(['release', '-p']);
+      expect(exitCode, ExitCode.usage.code);
+
+      verify(() => logger.err('Could not find an option or flag "-p".'));
+      verify(() => logger.info(helpMessage));
     });
 
     test('show error message for invalid release command', () async {

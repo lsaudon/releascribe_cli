@@ -1,6 +1,5 @@
 import 'package:mason_logger/mason_logger.dart';
 import 'package:process/process.dart';
-import 'package:pub_semver/pub_semver.dart';
 import 'package:releascribe_cli/src/commands/release/version_control/commit.dart';
 import 'package:releascribe_cli/src/commands/release/version_control/version_control_port.dart';
 
@@ -36,19 +35,5 @@ class VersionControlGitAdapter implements VersionControlPort {
     }
 
     return '${result.stdout as String}..HEAD';
-  }
-
-  @override
-  Future<void> createVersion({required final Version version}) async {
-    final tag = 'release-$version';
-    await _processManager
-        .run(['git', 'config', 'user.name', 'Releascribe Bot']);
-    await _processManager
-        .run(['git', 'config', 'user.email', 'bot@releascribe.com']);
-    await _processManager.run(['git', 'add', 'pubspec.yaml', 'CHANGELOG.md']);
-    await _processManager.run(['git', 'commit', '-m', 'chore: $version']);
-    await _processManager.run(['git', 'tag', tag]);
-    await _processManager.run(['git', 'push']);
-    await _processManager.run(['git', 'push', 'origin', 'tag', tag]);
   }
 }

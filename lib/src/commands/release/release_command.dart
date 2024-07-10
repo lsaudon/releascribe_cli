@@ -8,6 +8,8 @@ import 'package:pub_semver/pub_semver.dart';
 import 'package:releascribe_cli/src/commands/release/commit_category.dart';
 import 'package:releascribe_cli/src/commands/release/commit_category_registry.dart';
 import 'package:releascribe_cli/src/commands/release/conventional_commit.dart';
+import 'package:releascribe_cli/src/commands/release/output/output_adapter.dart';
+import 'package:releascribe_cli/src/commands/release/release_info.dart';
 import 'package:releascribe_cli/src/commands/release/semantic_version_type.dart';
 import 'package:releascribe_cli/src/commands/release/version/version_pub_adapter.dart';
 import 'package:releascribe_cli/src/commands/release/version_control/version_control_git_adapter.dart';
@@ -47,14 +49,14 @@ class ReleaseCommand extends Command<int> {
 
   @override
   Future<int> run() async {
-    final commitCategories = await _parseCommitCategoriesFromFile();
+    final releaseInfo = await _parseReleaseInfoFile();
     final versionControlPort = VersionControlGitAdapter(
       processManager: _processManager,
     );
     final commits = await versionControlPort.getCommits();
 
     final commitCategoryRegistry =
-        CommitCategoryRegistry(types: commitCategories);
+        CommitCategoryRegistry(types: releaseInfo?.categories);
     final messagesByTypes = <CommitCategory, List<ConventionalCommit>>{};
     final commitTypeRegex = RegExp(
       r'^(?<type>[a-zA-Z]*)(\((?<scope>[a-zA-Z]*)\))?: (?<subject>.*)$',
@@ -75,38 +77,32 @@ class ReleaseCommand extends Command<int> {
       currentVersion,
       messagesByTypes.keys.map((final e) => e.version).toList(),
     );
-    final changeLog = _generate(
+    await versionPort.setVersion(version);
+    final content = _generate(
       commitCategoryRegistry: commitCategoryRegistry,
       version: version,
       messagesByType: messagesByTypes,
     );
-    await versionPort.setVersion(version);
-    await _updateChangelog(changeLog);
-    await versionControlPort.createVersion(version: version);
+    final outputPort = OutputAdapter(fileSystem: _fileSystem);
+    await outputPort.write(
+      output: releaseInfo?.output ??
+          [const Output(path: 'CHANGELOG.md', overwrite: false)],
+      content: content,
+    );
     return ExitCode.success.code;
   }
 
-  Future<List<CommitCategory>?> _parseCommitCategoriesFromFile() async {
+  Future<ReleaseInfo?> _parseReleaseInfoFile() async {
     if (argResults?.options.contains(optionReleaseInfoFile) ?? false) {
       final jsonFilePath = argResults?[optionReleaseInfoFile] as String;
       final jsonFile = _fileSystem.file(jsonFilePath);
       if (await jsonFile.exists()) {
         final jsonString = await jsonFile.readAsString();
         final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
-        final list = jsonData['changelog'] as List<dynamic>;
-        final commitCategories = list.map((final e) {
-          final element = e as Map<String, dynamic>;
-          return CommitCategory(
-            element['type'] as String,
-            element['description'] as String,
-            SemanticVersionType.values.firstWhere(
-              (final f) => f.name == element['increment'] as String,
-            ),
-          );
-        }).toList();
-        return commitCategories;
+        return ReleaseInfo.fromJson(jsonData);
       }
     }
+
     return null;
   }
 
@@ -174,15 +170,5 @@ class ReleaseCommand extends Command<int> {
     }
 
     return buffer.toString();
-  }
-
-  Future<void> _updateChangelog(final String changeLog) async {
-    final changelogFile = _fileSystem.file('CHANGELOG.md');
-    if (await changelogFile.exists()) {
-      final oldChangeLog = await changelogFile.readAsString();
-      await changelogFile.writeAsString('$changeLog\n$oldChangeLog');
-    } else {
-      await changelogFile.writeAsString(changeLog);
-    }
   }
 }

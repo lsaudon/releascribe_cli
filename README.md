@@ -2,11 +2,11 @@
 
 ## Overview
 
-`releascribe` is a command-line interface tool written in Dart for automating software release management tasks. It integrates with version control systems, generates changelogs, determines project versions, and applies versioning changes based on commit categories defined in a JSON file.
+`releascribe` is a Dart-based CLI tool for automating software release management. It integrates with version control systems to generate changelogs, determine project versions, and apply versioning changes based on commit categories defined in a JSON file.
 
 ## Installation
 
-To use `releascribe`, ensure you have Dart SDK installed. You can install `releascribe` globally using Dart's package manager, `pub`:
+Ensure Dart SDK is installed, then use Dart's package manager to install `releascribe` globally:
 
 ```sh
 dart pub global activate releascribe_cli
@@ -22,78 +22,43 @@ releascribe release [-r <path_to_release_info_file>]
 
 ### Options
 
-- `-r, --release-info-file`: Path to a JSON file containing release information.
-  - **Description**: Specifies a file defining commit categories and their semantic versioning increments.
+- `-r, --release-info-file <path>`: Path to a JSON file defining commit categories and their semantic versioning increments and output files.
 
 ### Example
 
-#### Example `release-info.json`
+#### `release-info.json`
 
-Create a file named `release-info.json` with the following content:
+Create `release-info.json`:
 
 ```json
 {
+  "output": [
+    {"path": "CHANGELOG.md", "overwrite": false},
+    {"path": "release-notes.txt", "overwrite": true}
+  ],
   "changelog": [
-    {
-      "type": "fix",
-      "description": "🐛 Bug Fixes",
-      "increment": "patch"
-    },
-    {
-      "type": "feat",
-      "description": "✨ Features",
-      "increment": "minor"
-    },
-    {
-      "type": "refactor",
-      "description": "♻️ Code Refactoring",
-      "increment": "patch"
-    },
-    {
-      "type": "perf",
-      "description": "⚡️ Performance Improvements",
-      "increment": "patch"
-    },
-    {
-      "type": "test",
-      "description": "🧪 Tests",
-      "increment": "patch"
-    },
-    {
-      "type": "docs",
-      "description": "📝 Documentation",
-      "increment": "patch"
-    },
-    {
-      "type": "build",
-      "description": "🧱 Build System",
-      "increment": "patch"
-    },
-    {
-      "type": "ci",
-      "description": "🎞️ Continuous Integration",
-      "increment": "patch"
-    },
-    {
-      "type": "chore",
-      "description": "🧹 Chores",
-      "increment": "patch"
-    }
+    {"type": "fix", "description": "🐛 Bug Fixes", "increment": "patch"},
+    {"type": "feat", "description": "✨ Features", "increment": "minor"},
+    {"type": "refactor", "description": "♻️ Code Refactoring", "increment": "patch"},
+    {"type": "perf", "description": "⚡️ Performance Improvements", "increment": "patch"},
+    {"type": "test", "description": "🧪 Tests", "increment": "patch"},
+    {"type": "docs", "description": "📝 Documentation", "increment": "patch"},
+    {"type": "build", "description": "🧱 Build System", "increment": "patch"},
+    {"type": "ci", "description": "🎞️ Continuous Integration", "increment": "patch"},
+    {"type": "chore", "description": "🧹 Chores", "increment": "patch"}
   ]
 }
 ```
 
 #### Running the Command
 
-Execute the following command in your terminal to manage software releases based on the commit categories defined in `release-info.json`:
+Generate a changelog and update versioning information:
 
 ```sh
 releascribe release -r release-info.json
 ```
 
-- **Description**: This command generates a changelog, determines the next project version, and updates versioning information according to the commit categories specified in `release-info.json`.
-
 ### Notes
 
-- Ensure Dart SDK and `releascribe_cli` are correctly installed and accessible in your environment.
+- Ensure Dart SDK and `releascribe_cli` are correctly installed and accessible.
 - Customize `release-info.json` to match your project's commit categories and versioning conventions.

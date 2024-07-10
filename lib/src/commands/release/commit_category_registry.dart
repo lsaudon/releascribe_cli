@@ -1,7 +1,7 @@
 import 'package:releascribe_cli/src/commands/release/commit_category.dart';
 import 'package:releascribe_cli/src/commands/release/semantic_version_type.dart';
 
-class CommitCategoryRegistry {
+final class CommitCategoryRegistry {
   const CommitCategoryRegistry({final List<CommitCategory>? types})
       : _types = types ??
             const [
