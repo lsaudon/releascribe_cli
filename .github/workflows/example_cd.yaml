@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 📚 Git checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: 📂 Ajouter le fichier keystore
         working-directory: example/android/app
         run: echo "${{ secrets.DEV_ANDROID_KEYSTORE }}" | base64 --decode > example.keystore
@@ -39,7 +39,7 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: 📚 Git checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: 🗒️🔏 Ajouter le certificat de signature
         run: |
           keychainPassword=$(openssl rand -base64 50)
